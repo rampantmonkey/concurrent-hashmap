@@ -1,7 +1,10 @@
 [package]
-name = "concurrent-hashmap"
+name = "concurrent-kv"
 version = "0.2.0"
 authors = ["Casey Robinson <casey@rampantmonkey.com>", "Scott Steele"]
+description = "key-value data store with limited concurrent updates"
+repository = "https://github.com/rampantmonkey/concurrent-kv"
+license = "MIT"
 
 [dependencies]
 crossbeam = "0.2.9"
