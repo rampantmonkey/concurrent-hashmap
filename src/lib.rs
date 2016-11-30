@@ -27,7 +27,7 @@
 //! internal `Mutex` (`Library.insert_mutex`) which must be obtained before inserting a key.
 //!
 //! ```
-//! use concurrent_hashmap::Library;
+//! use concurrent_kv::Library;
 //!
 //! let lib: Library<String, i64> = Library::new();
 //! lib.insert("qwerty".into(), 12345);
@@ -48,7 +48,7 @@
 //! insertions to the same key.
 //!
 //! ```
-//! use concurrent_hashmap::Library;
+//! use concurrent_kv::Library;
 //! use std::sync::Arc;
 //!
 //! let lib0: Arc<Library<String, i64>> = Library::new().into();
@@ -100,6 +100,7 @@
 extern crate crossbeam;
 
 use std::collections::hash_map::HashMap;
+use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use std::borrow::Borrow;
 use std::clone::Clone;
@@ -197,6 +198,15 @@ impl<K, V> Library<K, V> where K: LibraryKey {
 
         self.internal_data.set(new_hash.into());
     }
+
+    pub fn map_concat<F>(&self, closure: F) -> String // TODO? Make generic over "things that can be concatenated/appended".
+        where F : Fn(&K, &V) -> String {
+        let mut s = String::new();
+        for (key, val) in self.internal_data().iter() {
+            s.push_str(&closure(key, val.get().deref())[..]);
+        }
+        s
+    }
 }
 
 #[cfg(test)]
@@ -237,5 +247,22 @@ mod tests {
         let val1 = lib.get("asdfgh").unwrap();
         assert_eq!(val0, 12345.into());
         assert_eq!(val1, 67890.into());
+    }
+
+    #[test]
+    fn render_all_values() {
+
+        let lib: Library<String, String> = Library::new();
+
+        lib.insert("I".into(), "hope".into());
+        lib.insert("this".into(), "works".into());
+        lib.insert("!".into(), "!!".into());
+
+        let result = lib.map_concat(|k, v| {
+            format!("\"{}\": \"{}\"\n", k, v)
+        });
+        assert!(result.contains("\"I\": \"hope\""));
+        assert!(result.contains("\"!\": \"!!\""));
+        assert!(result.contains("\"this\": \"works\""));
     }
 }

@@ -1,6 +1,6 @@
 [package]
 name = "concurrent-kv"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Casey Robinson <casey@rampantmonkey.com>", "Scott Steele"]
 description = "key-value data store with limited concurrent updates"
 repository = "https://github.com/rampantmonkey/concurrent-kv"
